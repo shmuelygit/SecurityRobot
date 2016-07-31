@@ -35,7 +35,7 @@ public class Robot implements Runnable{
 		try {
 			 URL location = Robot.class.getProtectionDomain().getCodeSource().getLocation();
 		     System.out.println(location.getFile());
-			input = new FileInputStream("config");
+			input = new FileInputStream(location.getFile()+"\\config");
 			prop.load(input);
 		} catch (FileNotFoundException e) {
 			setDefaultProperties(prop);
@@ -45,7 +45,7 @@ public class Robot implements Runnable{
 			e.printStackTrace();
 		}
 		mainLoopSleepMillis = Long.parseLong(prop.getProperty("mainLoopSleepMillis"));
-		actionLenMillis = Long.parseLong(prop.getProperty("actionMinWaitTimeMillis"));
+		actionLenMillis = Long.parseLong(prop.getProperty("actionLenMillis"));
 		cameraRotateDelay = Long.parseLong(prop.getProperty("cameraRotateDelay"));
 		servo000Nano = Long.parseLong(prop.getProperty("servo000Nano"));
 		servo180Nano = Long.parseLong(prop.getProperty("servo180Nano"));

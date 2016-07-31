@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>SO question 4112686</title>
+<title>Security Robot</title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript" src="Logic.js"></script>
 </head>
@@ -18,10 +18,6 @@
 
 	<br>
 
-
-	<p>
-		onkeypress - <span id="demo"></span>
-	</p>
 	
 </body>
 </html>
