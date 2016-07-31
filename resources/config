@@ -1,0 +1,5 @@
+mainLoopSleepMillis=100
+actionLenMillis=200
+cameraRotateDelay=50
+servo000Nano=1000
+servo180Nano=2000
