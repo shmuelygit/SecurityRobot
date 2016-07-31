@@ -20,10 +20,19 @@ public class RobotActionPi implements RobotActionInterface{
 		actionToGpioMap = new ConcurrentHashMap<RobotAction, GpioPinDigitalOutput>();
 		try{
 			gpioController = GpioFactory.getInstance();
-			actionToGpioMap.put(RobotAction.MoveForward, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_02,"My LED",PinState.LOW));
-			actionToGpioMap.put(RobotAction.MoveBackward, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_03,"My LED",PinState.LOW));
-			actionToGpioMap.put(RobotAction.MoveRight, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_04,"My LED",PinState.LOW));
-			actionToGpioMap.put(RobotAction.MoveLeft, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_17,"My LED",PinState.LOW));
+			actionToGpioMap.put(RobotAction.MoveForward, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_01,"My LED",PinState.LOW));
+			actionToGpioMap.put(RobotAction.MoveBackward, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_04,"My LED",PinState.LOW));
+			actionToGpioMap.put(RobotAction.MoveRight, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_05,"My LED",PinState.LOW));
+			actionToGpioMap.put(RobotAction.MoveLeft, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_06,"My LED",PinState.LOW));
+			
+			GpioPinDigitalOutput camHorizontal = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_02,"My LED",PinState.LOW);
+			GpioPinDigitalOutput camVertical = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_03,"My LED",PinState.LOW);
+			
+			actionToGpioMap.put(RobotAction.CamRotateLeft, camHorizontal);
+			actionToGpioMap.put(RobotAction.CamRotateRight, camHorizontal);
+			actionToGpioMap.put(RobotAction.CamRotateUp, camVertical);
+			actionToGpioMap.put(RobotAction.CamRotateDown, camVertical);
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}catch(Error e){
@@ -53,14 +62,21 @@ public class RobotActionPi implements RobotActionInterface{
 	}
 
 	public void pulseMicro(RobotAction action, long micro) {
+		//for long pulse use regular pulse, without busy waiting
+		if(micro > 10000){
+			pulse(action, micro/1000);
+			return;
+		}
+		
 		GpioPinDigitalOutput gpioOutput = actionToGpioMap.get(action);
 		if(gpioOutput!=null){
+			long nanos = micro+1000;
 			gpioOutput.high();
 		    long start = System.nanoTime();
 		    long end=0;
 		    do{
 		        end = System.nanoTime();
-		    }while(start + micro >= end);
+		    }while(start + nanos >= end);
 			gpioOutput.low();
 		}		
 	}
@@ -80,5 +96,5 @@ public class RobotActionPi implements RobotActionInterface{
 		}
 		return false;
 	}
-
+	
 }

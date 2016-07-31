@@ -19,8 +19,8 @@ var uniKeyCode = function(event) {
 
 var keyPressed = {};
 var buttons = [ "#MoveForwardButton", "#MoveBackwardButton", "#MoveRightButton",
-                "#MoveLeftButton", "#CamRotateRight", "#CamRotateLeft" ];
-var buttonsKeys = [ "38", "40", "39", "37", "68" , "65", ];
+                "#MoveLeftButton", "#CamRotateRight", "#CamRotateLeft", "#CamRotateUp", "#CamRotateDown" ];
+var buttonsKeys = [ "38", "40", "39", "37", "68" , "65", "87", "83"];
 var refreshTimeMillis = 100;
 
 document.addEventListener('keydown', function(e) {

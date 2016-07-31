@@ -6,5 +6,7 @@ public enum RobotAction {
 	MoveRight,
 	MoveLeft,
 	CamRotateRight,
-	CamRotateLeft
+	CamRotateLeft,
+	CamRotateUp,
+	CamRotateDown
 }

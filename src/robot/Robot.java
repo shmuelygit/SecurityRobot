@@ -22,11 +22,14 @@ public class Robot implements Runnable{
 	private long cameraRotateTime;
 	private long mainLoopSleepMillis;
 	private long actionLenMillis;
-	private long servo000Nano;
-	private long servo180Nano;
-	private final boolean isPiEnv = false;
+	private long servo000Micro;
+	private long servo180Micro;
+	private final boolean isPiEnv = true;
 	//for camera rotate
 	private long cameraRotateDelay = 50;
+	private int camRotateStepDeg;
+	private int curHorizontalDeg = 90;
+	private int curverticalDeg = 90;
 	
 	private Robot(){
 		//load config
@@ -35,7 +38,10 @@ public class Robot implements Runnable{
 		try {
 			 URL location = Robot.class.getProtectionDomain().getCodeSource().getLocation();
 		     System.out.println(location.getFile());
-			input = new FileInputStream(location.getFile()+"\\config");
+		     System.out.println("xxx");
+//			input = new FileInputStream(location.getFile()+"\\config");
+		     input = new FileInputStream("/home/config");
+		     
 			prop.load(input);
 		} catch (FileNotFoundException e) {
 			setDefaultProperties(prop);
@@ -47,8 +53,9 @@ public class Robot implements Runnable{
 		mainLoopSleepMillis = Long.parseLong(prop.getProperty("mainLoopSleepMillis"));
 		actionLenMillis = Long.parseLong(prop.getProperty("actionLenMillis"));
 		cameraRotateDelay = Long.parseLong(prop.getProperty("cameraRotateDelay"));
-		servo000Nano = Long.parseLong(prop.getProperty("servo000Nano"));
-		servo180Nano = Long.parseLong(prop.getProperty("servo180Nano"));
+		servo000Micro = Long.parseLong(prop.getProperty("servo000Micro"));
+		servo180Micro = Long.parseLong(prop.getProperty("servo180Micro"));
+		camRotateStepDeg = Integer.parseInt(prop.getProperty("camRotateStepDeg"));
 		
 		actionToUpTimeMap = new ConcurrentHashMap<RobotAction, Long>();
 		
@@ -101,13 +108,36 @@ public class Robot implements Runnable{
 				else if(isCameraAction(robotAction)){
 					
 					if (t > curTime && curTime > cameraRotateTime + cameraRotateDelay) {
-						System.out.println("currTime\t"+curTime+"\trobotAction\t"+robotAction+"\tendTime\t"+t+"\tset ON"+"\tis low\t"+robotActionInterface.isLow(robotAction));
+						long pulseFreq = 0;
 						if(robotAction == RobotAction.CamRotateLeft){
-							robotActionInterface.pulseMicro(RobotAction.CamRotateLeft, servo000Nano);
+							curHorizontalDeg -= camRotateStepDeg;
+							curHorizontalDeg = Math.max(0, curHorizontalDeg);
+							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curHorizontalDeg/180d));
+//							pulseFreq = servo000Nano;
+							robotActionInterface.pulseMicro(RobotAction.CamRotateLeft, pulseFreq);
 						}
 						else if(robotAction == RobotAction.CamRotateRight){
-							robotActionInterface.pulseMicro(RobotAction.CamRotateRight, servo180Nano);
+							curHorizontalDeg += camRotateStepDeg;
+							curHorizontalDeg = Math.min(180, curHorizontalDeg);
+							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curHorizontalDeg/180d));
+//							pulseFreq = servo180Nano;
+							robotActionInterface.pulseMicro(RobotAction.CamRotateRight, pulseFreq);
 						}
+						else if(robotAction == RobotAction.CamRotateUp){
+							curverticalDeg -= camRotateStepDeg;
+							curverticalDeg = Math.max(0, curverticalDeg);
+							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curverticalDeg/180d));
+//							pulseFreq = servo000Nano;
+							robotActionInterface.pulseMicro(RobotAction.CamRotateUp, pulseFreq);
+						}
+						else if(robotAction == RobotAction.CamRotateDown){
+							curverticalDeg += camRotateStepDeg;
+							curverticalDeg = Math.min(180, curverticalDeg);
+							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curverticalDeg/180d));
+//							pulseFreq = servo180Nano;
+							robotActionInterface.pulseMicro(RobotAction.CamRotateDown, pulseFreq);
+						}
+						System.out.println("currTime\t"+curTime+"\trobotAction\t"+robotAction+"\tendTime\t"+t+"\tpulse freq\t"+pulseFreq+"\tcurHorizontalDeg\t"+curHorizontalDeg+"\tcurverticalDeg\t"+curverticalDeg);
 						cameraRotateTime = System.currentTimeMillis();
 					}
 				}
@@ -125,7 +155,7 @@ public class Robot implements Runnable{
 	}
 	
 	private boolean isCameraAction(RobotAction robotAction){
-		return (robotAction == RobotAction.CamRotateRight || robotAction == RobotAction.CamRotateLeft);
+		return (robotAction == RobotAction.CamRotateRight || robotAction == RobotAction.CamRotateLeft||robotAction == RobotAction.CamRotateUp || robotAction == RobotAction.CamRotateDown);
 	}
 	
 	private void setDefaultProperties(Properties prop){
