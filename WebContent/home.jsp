@@ -15,6 +15,7 @@
 	<button id="CamRotateLeft" onclick="clickButton('CamRotateLeft')">CamLeft</button>
 	<button id="CamRotateUp" onclick="clickButton('CamRotateUp')">CamUp</button>
 	<button id="CamRotateDown" onclick="clickButton('CamRotateDown')">CamDown</button>
+	<button id="CamRotateInit" onclick="clickButton('CamRotateInit')">CamInit</button>
 	<br>
 	<img style="-webkit-user-select: none" src="http://192.168.42.1:8081/">
 	<%-- img style="-webkit-user-select: none" src="http://192.168.42.1:8081/" --%>

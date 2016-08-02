@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,29 +21,30 @@ public class Robot implements Runnable{
 	private static Robot instance = null;
 	private RobotActionInterface robotActionInterface; 
 	private ConcurrentHashMap<RobotAction, Long> actionToUpTimeMap;
-	private long cameraRotateTime;
 	private long mainLoopSleepMillis;
 	private long actionLenMillis;
 	private long servo000Micro;
 	private long servo180Micro;
 	private final boolean isPiEnv = true;
 	//for camera rotate
-	private long cameraRotateDelay = 50;
+	private long cameraRotateHorTimestamp;
+	private long cameraRotateVerTimestamp;
+	private long cameraRotateDelay;
 	private int camRotateStepDeg;
-	private int curHorizontalDeg = 90;
-	private int curverticalDeg = 90;
-	
+	private int curHorizontalDeg;
+	private int curverticalDeg;
+
 	private Robot(){
 		//load config
 		Properties prop = new Properties();
 		InputStream input;
 		try {
-			 URL location = Robot.class.getProtectionDomain().getCodeSource().getLocation();
-		     System.out.println(location.getFile());
-		     System.out.println("xxx");
-//			input = new FileInputStream(location.getFile()+"\\config");
-		     input = new FileInputStream("/home/config");
-		     
+			URL location = Robot.class.getProtectionDomain().getCodeSource().getLocation();
+			//		     System.out.println(location.getFile());
+			//		     System.out.println("xxx");
+			//			input = new FileInputStream(location.getFile()+"\\config");
+			input = new FileInputStream("/home/config");
+
 			prop.load(input);
 		} catch (FileNotFoundException e) {
 			setDefaultProperties(prop);
@@ -56,16 +59,16 @@ public class Robot implements Runnable{
 		servo000Micro = Long.parseLong(prop.getProperty("servo000Micro"));
 		servo180Micro = Long.parseLong(prop.getProperty("servo180Micro"));
 		camRotateStepDeg = Integer.parseInt(prop.getProperty("camRotateStepDeg"));
-		
+
 		actionToUpTimeMap = new ConcurrentHashMap<RobotAction, Long>();
-		
+
 		if (isPiEnv) {
 			robotActionInterface = new RobotActionPi();
 		}
 		else{
 			robotActionInterface = new RobotActionWindows();
 		}
-		
+
 		new Thread(this).start();
 	}
 
@@ -90,8 +93,17 @@ public class Robot implements Runnable{
 		System.out.println("run");
 		while(true){
 			long curTime = System.currentTimeMillis();
+
+			Map<RobotAction, Long> actionToUpTimeMapCopy = new HashMap<>();
 			for (RobotAction robotAction : RobotAction.values()) {
 				Long t = actionToUpTimeMap.get(robotAction);
+				if(t != null){
+					actionToUpTimeMapCopy.put(robotAction, t);
+				}
+			}
+
+			for (RobotAction robotAction : RobotAction.values()) {
+				Long t = actionToUpTimeMapCopy.get(robotAction);
 				if(t == null){
 					continue;
 				}
@@ -106,39 +118,48 @@ public class Robot implements Runnable{
 					}
 				}
 				else if(isCameraAction(robotAction)){
-					
-					if (t > curTime && curTime > cameraRotateTime + cameraRotateDelay) {
+
+					if (t > curTime) {
 						long pulseFreq = 0;
-						if(robotAction == RobotAction.CamRotateLeft){
+						if(robotAction == RobotAction.CamRotateLeft && curTime > cameraRotateHorTimestamp + cameraRotateDelay){
 							curHorizontalDeg -= camRotateStepDeg;
 							curHorizontalDeg = Math.max(0, curHorizontalDeg);
-							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curHorizontalDeg/180d));
-//							pulseFreq = servo000Nano;
+							pulseFreq = getPulseFreqByDeg(curHorizontalDeg);
 							robotActionInterface.pulseMicro(RobotAction.CamRotateLeft, pulseFreq);
+							cameraRotateHorTimestamp = System.currentTimeMillis();
 						}
-						else if(robotAction == RobotAction.CamRotateRight){
+						else if(robotAction == RobotAction.CamRotateRight && curTime > cameraRotateHorTimestamp + cameraRotateDelay){
 							curHorizontalDeg += camRotateStepDeg;
 							curHorizontalDeg = Math.min(180, curHorizontalDeg);
-							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curHorizontalDeg/180d));
-//							pulseFreq = servo180Nano;
+							pulseFreq = getPulseFreqByDeg(curHorizontalDeg);
 							robotActionInterface.pulseMicro(RobotAction.CamRotateRight, pulseFreq);
+							cameraRotateHorTimestamp = System.currentTimeMillis();
 						}
-						else if(robotAction == RobotAction.CamRotateUp){
+						else if(robotAction == RobotAction.CamRotateUp && curTime > cameraRotateVerTimestamp + cameraRotateDelay){
 							curverticalDeg -= camRotateStepDeg;
 							curverticalDeg = Math.max(0, curverticalDeg);
-							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curverticalDeg/180d));
-//							pulseFreq = servo000Nano;
+							pulseFreq = getPulseFreqByDeg(curverticalDeg);
 							robotActionInterface.pulseMicro(RobotAction.CamRotateUp, pulseFreq);
+							cameraRotateVerTimestamp = System.currentTimeMillis();
 						}
-						else if(robotAction == RobotAction.CamRotateDown){
+						else if(robotAction == RobotAction.CamRotateDown && curTime > cameraRotateVerTimestamp + cameraRotateDelay){
 							curverticalDeg += camRotateStepDeg;
 							curverticalDeg = Math.min(180, curverticalDeg);
-							pulseFreq = (long) (servo000Micro+(servo180Micro-servo000Micro)*(curverticalDeg/180d));
-//							pulseFreq = servo180Nano;
+							pulseFreq = getPulseFreqByDeg(curverticalDeg);
 							robotActionInterface.pulseMicro(RobotAction.CamRotateDown, pulseFreq);
+							cameraRotateVerTimestamp = System.currentTimeMillis();
+						}
+						else if(robotAction == RobotAction.CamRotateInit){
+							curHorizontalDeg = 90;
+							pulseFreq = getPulseFreqByDeg(curHorizontalDeg);
+							robotActionInterface.pulseMicro(RobotAction.CamRotateRight, pulseFreq);
+							cameraRotateHorTimestamp = System.currentTimeMillis();
+							curverticalDeg = 90;
+							pulseFreq = getPulseFreqByDeg(curverticalDeg);
+							robotActionInterface.pulseMicro(RobotAction.CamRotateDown, pulseFreq);
+							cameraRotateVerTimestamp = System.currentTimeMillis();
 						}
 						System.out.println("currTime\t"+curTime+"\trobotAction\t"+robotAction+"\tendTime\t"+t+"\tpulse freq\t"+pulseFreq+"\tcurHorizontalDeg\t"+curHorizontalDeg+"\tcurverticalDeg\t"+curverticalDeg);
-						cameraRotateTime = System.currentTimeMillis();
 					}
 				}
 			}
@@ -149,13 +170,17 @@ public class Robot implements Runnable{
 			}
 		}
 	}
-	
+
 	private boolean isMovementAction(RobotAction robotAction){
 		return (robotAction == RobotAction.MoveForward || robotAction == RobotAction.MoveBackward || robotAction == RobotAction.MoveLeft || robotAction == RobotAction.MoveRight);
 	}
-	
+
 	private boolean isCameraAction(RobotAction robotAction){
-		return (robotAction == RobotAction.CamRotateRight || robotAction == RobotAction.CamRotateLeft||robotAction == RobotAction.CamRotateUp || robotAction == RobotAction.CamRotateDown);
+		return (robotAction == RobotAction.CamRotateRight || robotAction == RobotAction.CamRotateLeft || robotAction == RobotAction.CamRotateUp || robotAction == RobotAction.CamRotateDown || robotAction == RobotAction.CamRotateInit);
+	}
+
+	private long getPulseFreqByDeg(int deg){
+		return (long) (servo000Micro+(servo180Micro-servo000Micro)*(deg/180d));
 	}
 	
 	private void setDefaultProperties(Properties prop){

@@ -70,7 +70,7 @@ public class RobotActionPi implements RobotActionInterface{
 		
 		GpioPinDigitalOutput gpioOutput = actionToGpioMap.get(action);
 		if(gpioOutput!=null){
-			long nanos = micro+1000;
+			long nanos = micro*1000;
 			gpioOutput.high();
 		    long start = System.nanoTime();
 		    long end=0;

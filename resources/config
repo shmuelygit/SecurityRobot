@@ -1,6 +1,6 @@
-mainLoopSleepMillis=100
+mainLoopSleepMillis=10
 actionLenMillis=200
-cameraRotateDelay=50
+cameraRotateDelay=10
 servo000Micro=1000
 servo180Micro=2000
-camRotateStepDeg=10
+camRotateStepDeg=1
