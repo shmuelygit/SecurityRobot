@@ -27,6 +27,7 @@ public class FirstServlet extends HttpServlet {
 		String method = request.getParameter("method");
 		String time = request.getParameter("time");
 		activateRobot(method, time);
+		response.getOutputStream().write(66);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

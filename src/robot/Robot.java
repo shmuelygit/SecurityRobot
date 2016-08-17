@@ -25,7 +25,7 @@ public class Robot implements Runnable{
 	private long actionLenMillis;
 	private long servo000Micro;
 	private long servo180Micro;
-	private final boolean isPiEnv = true;
+	private final boolean isPiEnv = false;
 	//for camera rotate
 	private long cameraRotateHorTimestamp;
 	private long cameraRotateVerTimestamp;
@@ -40,10 +40,10 @@ public class Robot implements Runnable{
 		InputStream input;
 		try {
 			URL location = Robot.class.getProtectionDomain().getCodeSource().getLocation();
-			//		     System.out.println(location.getFile());
-			//		     System.out.println("xxx");
-			//			input = new FileInputStream(location.getFile()+"\\config");
-			input = new FileInputStream("/home/config");
+					     System.out.println(location.getFile());
+					     System.out.println("xxx");
+						input = new FileInputStream(location.getFile()+"\\config");
+//			input = new FileInputStream("/home/config");
 
 			prop.load(input);
 		} catch (FileNotFoundException e) {
@@ -79,11 +79,12 @@ public class Robot implements Runnable{
 		return instance;
 	}
 
-	public void handle(RobotAction robotAction, long timeInitiated){
+	public Object handle(RobotAction robotAction, long timeInitiated){
 		//TODO use timeInitiated
 		Long t = actionToUpTimeMap.get(robotAction);
 		Long nt = System.currentTimeMillis()+actionLenMillis;
 		actionToUpTimeMap.put(robotAction, nt);
+		return null;
 	}
 
 	/*

@@ -6,7 +6,7 @@ var clickButton = function(userMethod){
 	$.get("FirstServlet",
 			{ method: userMethod, time:(new Date).getTime()},
 			function(responseJson) {
-
+				
 			}
 	);
 }
