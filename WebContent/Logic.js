@@ -6,9 +6,15 @@ var clickButton = function(userMethod){
 	$.get("FirstServlet",
 			{ method: userMethod, time:(new Date).getTime()},
 			function(responseJson) {
-
+		        
 			}
 	);
+}
+
+var handleState = function(responseJson){
+	$.each(responseJson, function(index, item) { // Iterate over the JSON array.
+    	document.getElementById(index).innerHTML = item;
+    });
 }
 
 var uniKeyCode = function(event) {
