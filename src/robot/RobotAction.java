@@ -9,5 +9,6 @@ public enum RobotAction {
 	CamRotateLeft,
 	CamRotateUp,
 	CamRotateDown,
-	CamRotateInit
+	CamRotateInit,
+	QuerySpeed
 }
