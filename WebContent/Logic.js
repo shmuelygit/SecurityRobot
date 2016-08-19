@@ -16,12 +16,6 @@ var handleState = function(responseJson){
     });
 }
 
-var uniKeyCode = function(event) {
-	var key = event.which || event.keyCode;
-	document.getElementById("demo").innerHTML = "" + key;
-	$("#MoveForwardButton").click();
-}
-
 var keyPressed = {};
 var buttons = [ "#MoveForwardButton", 
                 "#MoveBackwardButton", 

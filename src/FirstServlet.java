@@ -27,10 +27,14 @@ public class FirstServlet extends HttpServlet {
 		super();
 	}
 
+	//handle get request from user
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//extract parameters from request
 		String method = request.getParameter("method");
 		String time = request.getParameter("time");
+		//call robot to handle the request
 		activateRobot(method, time);
+		//write response to use
 		writeState(response);
 	}
 
@@ -38,10 +42,14 @@ public class FirstServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 
+	//call robot to handle request
 	protected void activateRobot(String method, String time){
 		try{
+			//get RobotAction from string
 			RobotAction robotAction = RobotAction.valueOf(method);
+			//get the call time as Long
 			long callTime = Long.parseLong(time);
+			//call robot to handle
 			Robot.getInstance().handle(robotAction, callTime);
 		}
 		catch (Exception e){

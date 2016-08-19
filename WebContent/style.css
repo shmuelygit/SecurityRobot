@@ -3,7 +3,7 @@
 	height: 95%;
 	
 	border-radius: 25px;
-	border: 10px solid #f2f2f2;
+	border: 10px solid #000000;
 	padding: 20px;
 	
 	position: relative;
@@ -12,8 +12,9 @@
 	
     text-align: center;
     
-    background-image: url("back1.jpg");
-    background-color: #cccccc;
+    background-image: url("dogrobot.jpg");
+    background-size: contain;
+    background-color: #000000;
 }
 
 #moveButtonsContainer{

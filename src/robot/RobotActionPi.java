@@ -12,19 +12,24 @@ import robot.RobotAction;
 
 public class RobotActionPi implements RobotActionInterface{
 
-	
+	//map from robot action to gpio output
 	private ConcurrentHashMap<RobotAction, GpioPinDigitalOutput> actionToGpioMap;
+	// gpio controller
 	private GpioController gpioController;
 	
 	RobotActionPi(){
+		//create the map
 		actionToGpioMap = new ConcurrentHashMap<RobotAction, GpioPinDigitalOutput>();
 		try{
+			//create the controller
 			gpioController = GpioFactory.getInstance();
+			//init map - for each movement robot action create a new gpio pin
 			actionToGpioMap.put(RobotAction.MoveForward, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_01,"My LED",PinState.LOW));
 			actionToGpioMap.put(RobotAction.MoveBackward, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_04,"My LED",PinState.LOW));
 			actionToGpioMap.put(RobotAction.MoveRight, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_05,"My LED",PinState.LOW));
 			actionToGpioMap.put(RobotAction.MoveLeft, gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_06,"My LED",PinState.LOW));
 			
+			//init gpio for camera
 			GpioPinDigitalOutput camHorizontal = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_02,"My LED",PinState.LOW);
 			GpioPinDigitalOutput camVertical = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_03,"My LED",PinState.LOW);
 			
