@@ -6,11 +6,6 @@ var clickButton = function(userMethod){
 	$.get("FirstServlet",
 			{ method: userMethod, time:(new Date).getTime()},
 			function(responseJson) {
-<<<<<<< HEAD
-		        
-=======
-				
->>>>>>> branch 'master' of https://github.com/shmuelygit/SecurityRobot.git
 			}
 	);
 }

@@ -31,12 +31,7 @@ public class FirstServlet extends HttpServlet {
 		String method = request.getParameter("method");
 		String time = request.getParameter("time");
 		activateRobot(method, time);
-<<<<<<< HEAD
 		writeState(response);
-		
-=======
-		response.getOutputStream().write(66);
->>>>>>> branch 'master' of https://github.com/shmuelygit/SecurityRobot.git
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
